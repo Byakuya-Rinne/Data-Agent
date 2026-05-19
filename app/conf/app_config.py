@@ -3,6 +3,7 @@ from pathlib import Path
 
 from omegaconf import OmegaConf
 
+# conf/app_config.yaml 配置的结构定义和加载工具，用 OmegaConf 把 YAML 转成 Python 对象。
 
 @dataclass
 class File:
