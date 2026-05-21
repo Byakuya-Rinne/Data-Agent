@@ -21,6 +21,20 @@ class MetricQdrantRepository:
                 vectors_config=VectorParams(size=app_config.qdrant.embedding_size, distance=Distance.COSINE)
             )
 
+    async def upsert(self, ids: list[str], embeddings: list[list[float]], payloads: list[MetricInfo],
+                     batch_size: int = 10):
+        # zip 函数：list[（Id，embedding,payload） ：（Id，embedding,payload）：（Id，embedding,payload）]
+        zipped = list(zip(ids, embeddings, payloads))
+        for i in range(0, len(zipped), batch_size):
+            # 获取截取数据;
+            batch = zipped[i:i + batch_size]
+            # PointStruct(id vector payload)
+            points = [PointStruct(id=id, vector=embedding, payload=asdict(payload)) for id, embedding, payload in batch]
+            # 调用客户端向，向量数据库中添加数据.
+            await self.client.upsert(
+                collection_name=self.collection_name,
+                points=points
+            )
 
 
 
