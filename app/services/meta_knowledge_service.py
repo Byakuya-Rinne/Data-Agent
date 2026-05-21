@@ -127,9 +127,48 @@ class MetaKnowledgeService:
 
 
 
+    async def _save_value_info_to_es(self, meta_config: MetaConfig, column_infos: list[ColumnInfo]):
+        # 先判断是否有索引库！
+        await self.value_es_repository.ensure_index()
+
+        # 读取配置config，没有原始数据
+        column_sync: dict[str,bool] = {}
+        for table in meta_config.tables:
+            for column in table.columns:
+                # 拿到了"哪些字段需要存"的信息，没有原始数据
+                # "dim_region.region_id": False,
+                # "dim_region.province": True,
+                # ......
+                column_sync[f"{table.name}.{column.name}"] = column.sync
+
+        # 查这些列的数据库内真实数据（column_infos）存入es
+        value_infos: list[ValueInfo] = []
+        for column_info in column_infos:
+            if column_sync[f"{column_info.table_id}.{column_info.name}"]:
+                table_name = column_info.table_id
+                column_name = column_info.name
+                # 取原dw表一列所有真实取值
+                column_values: list[str] = await self.dw_mysql_repository.get_column_values(table_name, column_name, 10000)
+
+                for column_value in column_values:
+                    value_info = ValueInfo(
+                        id=f"{column_info.id}.{column_value}",
+                        value=column_value,
+                        column_id=column_info.id
+                    )
+                    value_infos.append(value_info)
+        await self.value_es_repository.index(value_infos)
+
 
 
 
 
 
     pass
+
+
+
+
+
+
+
