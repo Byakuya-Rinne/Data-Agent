@@ -8,7 +8,7 @@ from app.repositories.mysql.meta.meta_mysql_repository import MetaMySQLRepositor
 from app.repositories.qdrant.column_qdrant_repository import ColumnQdrantRepository
 from app.repositories.qdrant.metric_qdrant_repository import MetricQdrantRepository
 
-
+# graph运行时共享的工具声明，用runtime: Runtime[DataAgentContext]声明
 class DataAgentContext(TypedDict):
     embedding_client: HuggingFaceEndpointEmbeddings
     column_qdrant_repository: ColumnQdrantRepository

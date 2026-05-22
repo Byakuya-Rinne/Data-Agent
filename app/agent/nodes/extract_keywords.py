@@ -8,6 +8,7 @@ from app.core.log import logger
 
 async def extract_keywords(state: DataAgentState, runtime: Runtime[DataAgentContext]):
     writer = runtime.stream_writer
+    # LangGraph 运行时提供的自定义流式输出器，用来向客户端SSE推送非状态的实时事件（进度、日志等），与最终查询结果分开
     writer({"type": "progress", "step": "抽取关键字", "status": "running"})
 
     query = state["query"]

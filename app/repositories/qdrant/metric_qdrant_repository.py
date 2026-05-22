@@ -36,6 +36,15 @@ class MetricQdrantRepository:
                 points=points
             )
 
+    async def search(self, embedding):
+        result = await self.client.query_points(
+            collection_name=self.collection_name,
+            query=embedding,
+            limit=10,
+            score_threshold=0.6
+        )
+        # 存储的元数据：service;payload=metric_info
+        return [MetricInfo(**point.payload) for point in result.points]
 
 
 
